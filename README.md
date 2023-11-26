@@ -1,5 +1,5 @@
 ---
-title: chat-ui
+title: GPT Assistant
 emoji: 🔥
 colorFrom: purple
 colorTo: purple
@@ -12,7 +12,7 @@ app_port: 3000
 
 # Chat UI
 
-![Chat UI repository thumbnail](https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/chatui-websearch.png)
+![Chat UI repository thumbnail](https://i.ibb.co/nfc23Rg/GPT-Assistant.png)
 
 A chat interface using open source models, eg OpenAssistant or Llama. It is a SvelteKit app and it powers the [HuggingChat app on hf.co/chat](https://huggingface.co/chat).
 
