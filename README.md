@@ -10,7 +10,7 @@ base_path: /chat
 app_port: 3000
 ---
 
-# Chat UI
+# GPT Assistant
 
 ![Chat UI repository thumbnail](https://i.ibb.co/nfc23Rg/GPT-Assistant.png)
 
