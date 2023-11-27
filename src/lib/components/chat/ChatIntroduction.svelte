@@ -44,7 +44,7 @@
 				  </style>
 			</div>
 			<p class="text-base text-gray-600 dark:text-white" style="padding-left:18px;">
-				Own Your AI Data.
+               
 			</p>
 		</div>
 	</div>
@@ -52,17 +52,6 @@
 	</div>
 	{#if currentModelMetadata.promptExamples}
 		<div class="lg:col-span-3 lg:mt-6">
-			<p class="mb-3 text-gray-600 dark:text-gray-200">Privacy first prompts.</p>
-			<div class="grid gap-3 lg:grid-cols-3 lg:gap-5">
-				{#each currentModelMetadata.promptExamples as example}
-					<button
-						type="button"
-						class="rounded-xl border bg-white-50 p-2.5 text-white hover:bg-gray-100 dark:border-gray-100/0 dark:bg-gray-700/30 dark:text-white dark:hover:bg-gray-700/80 sm:p-4"
-						on:click={() => dispatch("message", example.prompt)}
-					>
-						{example.title}
-					</button>
-				{/each}
-			</div>
+			<p class="mb-3 text-gray-600 dark:text-gray-200">Our AI operates without censorship. Proceed at your own discretion.</p>
 		</div>{/if}
 </div>
