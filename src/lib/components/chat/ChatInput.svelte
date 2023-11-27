@@ -65,7 +65,7 @@
 		}
 	  } catch (error) {
 		console.error(error);
-		alert('An error occurred while connecting to MetaMask. Please try again.');
+		alert('Please make sure you are logged into Metamask and try again.');
 	  }
 	}
   
@@ -120,7 +120,7 @@
       }
     } catch (error) {
       console.error(error);
-      alert('An error occurred while purchasing credits. Please try again.');
+      alert('An error occurred while purchasing or verifying prompt credits. Please try again.');
     }
   }
 

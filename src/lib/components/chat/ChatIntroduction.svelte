@@ -11,8 +11,6 @@
 	import ModelCardMetadata from "../ModelCardMetadata.svelte";
 	import type { LayoutData } from "../../../routes/$types";
 	import { findCurrentModel } from "$lib/utils/models";
-
-	export let currentModel: Model;
 	export let settings: LayoutData["settings"];
 	export let models: Model[];
 
@@ -52,6 +50,6 @@
 	</div>
 	{#if currentModelMetadata.promptExamples}
 		<div class="lg:col-span-3 lg:mt-6">
-			<p class="mb-3 text-gray-600 dark:text-gray-200">Our AI operates without censorship. Proceed at your own discretion.</p>
+			<p class="mb-3 text-gray-600 dark:text-gray-200">AI that's censorship-resistant. Proceed at your own discretion.</p>
 		</div>{/if}
 </div>

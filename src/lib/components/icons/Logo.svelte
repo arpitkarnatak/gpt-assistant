@@ -7,7 +7,7 @@
 </script>
 
 {#if PUBLIC_APP_ASSETS === "chatui"}
-<svg width="6em" height="3em" viewBox="0 0 223 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="4em" height="3em" viewBox="0 0 223 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>Group</title>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="Group" fill="#ffffff">

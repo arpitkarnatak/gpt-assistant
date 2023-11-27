@@ -1,100 +1,102 @@
 <script lang="ts">
-	import { base } from "$app/paths";
-	import { createEventDispatcher } from "svelte";
-	import Logo from "$lib/components/icons/Logo.svelte";
-	import { switchTheme } from "$lib/switchTheme";
-	import { PUBLIC_ORIGIN } from "$env/static/public";
-	import NavConversationItem from "./NavConversationItem.svelte";
-	import { ethers } from 'ethers';
-	import { onMount } from 'svelte';
-	import { truncateAddress } from './helpers';
-	import GPT_ABI from '../contracts/gpt.json';
-  
-	const dispatch = createEventDispatcher<{
-	  shareConversation: { id: string; title: string };
-	  clickSettings: void;
-	}>();
-  
-	export let conversations: Array<{
-	  id: string;
-	  title: string;
-	}> = [];
-  
-	let userAddress: string | null = null;
-	let network: ethers.providers.Network | null = null;
-	let balance: string | null = null;
-	let isConnected = false;
-  
-	const GPT_CONTRACT_ADDRESS = "0xC3d2675aE844aB277536402c478031770071d9e4";
+    import { base } from "$app/paths";
+    import { createEventDispatcher } from "svelte";
+    import Logo from "$lib/components/icons/Logo.svelte";
+    import { PUBLIC_ORIGIN } from "$env/static/public";
+    import NavConversationItem from "./NavConversationItem.svelte";
+    import { ethers } from 'ethers';
+    import { onMount } from 'svelte';
+    import { truncateAddress } from './helpers';
+    import GPT_ABI from '../contracts/gpt.json';
 
-	/* Basic account setup */
-	async function setup(accounts: string[]) {
-	userAddress = accounts[0]; // update the state
-	// Get and update the ethereum provider
-	try {
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-		network = await provider.getNetwork();
+    const dispatch = createEventDispatcher<{
+        shareConversation: { id: string; title: string };
+        clickSettings: void;
+    }>();
 
-		// Create a new instance of the Contract
-		const gptContract = new ethers.Contract(GPT_CONTRACT_ADDRESS, GPT_ABI, provider);
-		
-		// Fetch the balance
-		const rawBalance = await gptContract.balanceOf(userAddress);
-		const gptBalance = ethers.utils.formatUnits(rawBalance, 18);
+    export let conversations: Array<{
+        id: string;
+        title: string;
+    }> = [];
 
-		balance = truncateBalance(gptBalance) + ' GPT';
-		isConnected = true;
-	} catch (e) {
-		console.error(e);
-	}
-	}
-  
-	async function connectWallet() {
-	  if (window.ethereum) {
-		// ethereum is an object injected by the wallet. Let's check if it is available
-		try {
-		  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); // use the request method to get the accounts, i.e., logging in to Metamask
-		  if (accounts.length > 0) {
-			await setup(accounts);
-		  } else {
-			alert('No Ethereum accounts found');
-		  }
-		} catch (e) {
-		  console.error(e);
-		}
-	  } else {
-		alert('No Ethereum Wallet found');
-	  }
-	}
-  
-	onMount(async () => {
-	  if (window.ethereum) {
-		try {
-		  const accounts = await window.ethereum.request({ method: 'eth_accounts' }); // get the accounts
-  
-		  if (accounts.length > 0) {
-			await setup(accounts);
-		  }
-		} catch (e) {
-		  console.error(e);
-		}
-	  }
-  
-	  // Listen for Metamask account change event
-	  window.ethereum?.on('accountsChanged', setup);
-	});
-  
-	function truncateBalance(balance: string): string {
-	  const MAX_DECIMALS = 4;
-	  const [integerPart, decimalPart] = balance.split('.');
-	  let truncatedBalance = integerPart;
-  
-	  if (decimalPart) {
-		truncatedBalance += '.' + decimalPart.slice(0, MAX_DECIMALS);
-	  }
-	  return truncatedBalance;
-	}
-  </script>
+    let userAddress: string | null = null;
+    let network: ethers.providers.Network | null = null;
+    let balance: string | null = null;
+    let isConnected = false;
+
+    const GPT_CONTRACT_ADDRESS = "0xC3d2675aE844aB277536402c478031770071d9e4";
+    const CONNECTION_STATE_KEY = 'walletConnectionState';
+
+    async function setup(accounts: string[]) {
+        userAddress = accounts[0];
+        const previouslyConnected = localStorage.getItem(CONNECTION_STATE_KEY) === 'connected';
+        
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            network = await provider.getNetwork();
+
+            const gptContract = new ethers.Contract(GPT_CONTRACT_ADDRESS, GPT_ABI, provider);
+            const rawBalance = await gptContract.balanceOf(userAddress);
+            const gptBalance = ethers.utils.formatUnits(rawBalance, 18);
+
+            balance = truncateBalance(gptBalance) + ' GPT';
+            isConnected = true;
+
+            if (!previouslyConnected) {
+                localStorage.setItem(CONNECTION_STATE_KEY, 'connected');
+                window.location.reload();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function connectWallet() {
+        if (!window.ethereum) {
+            alert('No Ethereum Wallet found');
+            return;
+        }
+        
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            await setup(accounts);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    onMount(async () => {
+        if (!window.ethereum) return;
+
+        const previouslyConnected = localStorage.getItem(CONNECTION_STATE_KEY) === 'connected';
+
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+                await setup(accounts);
+            } else if (previouslyConnected) {
+                localStorage.removeItem(CONNECTION_STATE_KEY);
+                window.location.reload();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        window.ethereum.on('accountsChanged', (accounts) => setup(accounts));
+    });
+
+    function truncateBalance(balance: string): string {
+        const MAX_DECIMALS = 4;
+        const [integerPart, decimalPart] = balance.split('.');
+        let truncatedBalance = integerPart;
+
+        if (decimalPart) {
+            truncatedBalance += '.' + decimalPart.slice(0, MAX_DECIMALS);
+        }
+        return truncatedBalance;
+    }
+</script>
+
   
   <div class="sticky top-0 flex flex-none items-center justify-between px-3 py-3 max-sm:pt-0">
 	<a class="flex items-center rounded-xl text-lg font-semibold" href="{PUBLIC_ORIGIN}{base}/">
