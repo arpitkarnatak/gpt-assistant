@@ -50,6 +50,6 @@
 	</div>
 	{#if currentModelMetadata.promptExamples}
 		<div class="lg:col-span-3 lg:mt-6">
-			<p class="mb-3 text-gray-600 dark:text-gray-200">AI that's censorship-resistant. Proceed at your own discretion.</p>
+			<p class="mb-3 text-gray-600 dark:text-gray-200">Censorship-resistant intelligence. </p>
 		</div>{/if}
 </div>

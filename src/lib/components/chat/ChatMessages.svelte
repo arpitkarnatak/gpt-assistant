@@ -53,7 +53,7 @@
 				on:vote
 			/>
 		{:else}
-			<ChatIntroduction {settings} {models} {currentModel} on:message />
+			<ChatIntroduction {settings} {models} on:message />
 		{/each}
 		{#if pending}
 			<ChatMessage
