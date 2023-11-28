@@ -3,27 +3,7 @@
 
 ![Chat UI repository thumbnail](https://i.ibb.co/nfc23Rg/GPT-Assistant.png)
 
-A chat interface using open source models, eg OpenAssistant or Llama. It is a SvelteKit app and it powers the [HuggingChat app on hf.co/chat](https://huggingface.co/chat).
-
-0. [No Setup Deploy](#no-setup-deploy)
-1. [Setup](#setup)
-2. [Launch](#launch)
-3. [Web Search](#web-search)
-4. [Extra parameters](#extra-parameters)
-5. [Deploying to a HF Space](#deploying-to-a-hf-space)
-6. [Building](#building)
-
-##  No Setup Deploy
-
-If you don't want to configure, setup, and launch your own Chat UI yourself, you can use this option as a fast deploy alternative.
-
-You can deploy your own customized Chat UI instance with any supported [LLM](https://huggingface.co/models?pipeline_tag=text-generation&sort=trending) of your choice on [Hugging Face Spaces](https://huggingface.co/spaces). To do so, use the chat-ui template [available here](https://huggingface.co/new-space?template=huggingchat/chat-ui-template).
-
-Set `HUGGING_FACE_HUB_TOKEN` in [Space secrets](https://huggingface.co/docs/hub/spaces-overview#managing-secrets-and-environment-variables) to deploy a model with gated access or a model in a private repository. It's also compatible with [Inference for PROs](https://huggingface.co/blog/inference-pro) curated list of powerful models with higher rate limits. Make sure to create your personal token first in your [User Access Tokens settings](https://huggingface.co/settings/tokens).
-
-Read the full tutorial [here](https://huggingface.co/docs/hub/spaces-sdks-docker-chatui#chatui-on-spaces).
-
-## Setup
+A chat interface using open source models.
 
 The default config for Chat UI is stored in the `.env` file. You will need to override some values to get Chat UI to run locally. This is done in `.env.local`.
 
@@ -48,10 +28,6 @@ In which case the url of your DB will be `MONGODB_URL=mongodb://localhost:27017`
 
 Alternatively, you can use a [free MongoDB Atlas](https://www.mongodb.com/pricing) instance for this, Chat UI should fit comfortably within their free tier. After which you can set the `MONGODB_URL` variable in `.env.local` to match your instance.
 
-### Hugging Face Access Token
-
-If you use a remote inference endpoint, you will need a Hugging Face access token to run Chat UI locally. You can get one from [your Hugging Face profile](https://huggingface.co/settings/tokens).
-
 ## Launch
 
 After you're done with the `.env.local` file you can run Chat UI locally with:
@@ -61,141 +37,11 @@ npm install
 npm run dev
 ```
 
-## Web Search
-
-Chat UI features a powerful Web Search feature. It works by:
-
-1. Generating an appropriate search query from the user prompt.
-2. Performing web search and extracting content from webpages.
-3. Creating embeddings from texts using [transformers.js](https://huggingface.co/docs/transformers.js). Specifically, using [Xenova/gte-small](https://huggingface.co/Xenova/gte-small) model.
-4. From these embeddings, find the ones that are closest to the user query using a vector similarity search. Specifically, we use `inner product` distance.
-5. Get the corresponding texts to those closest embeddings and perform [Retrieval-Augmented Generation](https://huggingface.co/papers/2005.11401) (i.e. expand user prompt by adding those texts so that an LLM can use this information).
-
-## Extra parameters
-
-### OpenID connect
-
-The login feature is disabled by default and users are attributed a unique ID based on their browser. But if you want to use OpenID to authenticate your users, you can add the following to your `.env.local` file:
-
-```env
-OPENID_CONFIG=`{
-  PROVIDER_URL: "<your OIDC issuer>",
-  CLIENT_ID: "<your OIDC client ID>",
-  CLIENT_SECRET: "<your OIDC client secret>",
-  SCOPES: "openid profile",
-  TOLERANCE: // optional
-  RESOURCE: // optional
-}`
-```
-
-These variables will enable the openID sign-in modal for users.
-
-### Theming
-
-You can use a few environment variables to customize the look and feel of chat-ui. These are by default:
-
-```env
-PUBLIC_APP_NAME=ChatUI
-PUBLIC_APP_ASSETS=chatui
-PUBLIC_APP_COLOR=blue
-PUBLIC_APP_DESCRIPTION="Making the community's best AI chat models available to everyone."
-PUBLIC_APP_DATA_SHARING=
-PUBLIC_APP_DISCLAIMER=
-```
-
-- `PUBLIC_APP_NAME` The name used as a title throughout the app.
-- `PUBLIC_APP_ASSETS` Is used to find logos & favicons in `static/$PUBLIC_APP_ASSETS`, current options are `chatui` and `huggingchat`.
-- `PUBLIC_APP_COLOR` Can be any of the [tailwind colors](https://tailwindcss.com/docs/customizing-colors#default-color-palette).
-- `PUBLIC_APP_DATA_SHARING` Can be set to 1 to add a toggle in the user settings that lets your users opt-in to data sharing with models creator.
-- `PUBLIC_APP_DISCLAIMER` If set to 1, we show a disclaimer about generated outputs on login.
-
 ### Web Search config
 
 You can enable the web search through an API by adding `YDC_API_KEY` ([docs.you.com](https://docs.you.com)) or `SERPER_API_KEY` ([serper.dev](https://serper.dev/)) or `SERPAPI_KEY` ([serpapi.com](https://serpapi.com/)) to your `.env.local`.
 
 You can also simply enable the local websearch by setting `USE_LOCAL_WEBSEARCH=true` in your `.env.local`.
-
-### Custom models
-
-You can customize the parameters passed to the model or even use a new model by updating the `MODELS` variable in your `.env.local`. The default one can be found in `.env` and looks like this :
-
-```env
-MODELS=`[
-  {
-    "name": "OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5",
-    "datasetName": "OpenAssistant/oasst1",
-    "description": "A good alternative to ChatGPT",
-    "websiteUrl": "https://open-assistant.io",
-    "userMessageToken": "<|prompter|>", # This does not need to be a token, can be any string
-    "assistantMessageToken": "<|assistant|>", # This does not need to be a token, can be any string
-    "userMessageEndToken": "<|endoftext|>", # Applies only to user messages. Can be any string.
-    "assistantMessageEndToken": "<|endoftext|>", # Applies only to assistant messages. Can be any string.
-    "preprompt": "Below are a series of dialogues between various people and an AI assistant. The AI tries to be helpful, polite, honest, sophisticated, emotionally aware, and humble but knowledgeable. The assistant is happy to help with almost anything and will do its best to understand exactly what is needed. It also tries to avoid giving false or misleading information, and it caveats when it isn't entirely sure about the right answer. That said, the assistant is practical and really does its best, and doesn't let caution get too much in the way of being useful.\n-----\n",
-    "promptExamples": [
-      {
-        "title": "Write an email from bullet list",
-        "prompt": "As a restaurant owner, write a professional email to the supplier to get these products every week: \n\n- Wine (x10)\n- Eggs (x24)\n- Bread (x12)"
-      }, {
-        "title": "Code a snake game",
-        "prompt": "Code a basic snake game in python and give explanations for each step."
-      }, {
-        "title": "Assist in a task",
-        "prompt": "How do I make a delicious lemon cheesecake?"
-      }
-    ],
-    "parameters": {
-      "temperature": 0.9,
-      "top_p": 0.95,
-      "repetition_penalty": 1.2,
-      "top_k": 50,
-      "truncate": 1000,
-      "max_new_tokens": 1024,
-      "stop": ["<|endoftext|>"]  # This does not need to be tokens, can be any list of strings
-    }
-  }
-]`
-
-```
-
-You can change things like the parameters, or customize the preprompt to better suit your needs. You can also add more models by adding more objects to the array, with different preprompts for example.
-
-#### chatPromptTemplate
-
-When querying the model for a chat response, the `chatPromptTemplate` template is used. `messages` is an array of chat messages, it has the format `[{ content: string }, ...]`. To identify if a message is a user message or an assistant message the `ifUser` and `ifAssistant` block helpers can be used.
-
-The following is the default `chatPromptTemplate`, although newlines and indentiation have been added for readability. You can find the prompts used in production for HuggingChat [here](https://github.com/huggingface/chat-ui/blob/main/PROMPTS.md).
-
-```prompt
-{{preprompt}}
-{{#each messages}}
-  {{#ifUser}}{{@root.userMessageToken}}{{content}}{{@root.userMessageEndToken}}{{/ifUser}}
-  {{#ifAssistant}}{{@root.assistantMessageToken}}{{content}}{{@root.assistantMessageEndToken}}{{/ifAssistant}}
-{{/each}}
-{{assistantMessageToken}}
-```
-
-#### Multi modal model
-
-We currently only support IDEFICS as a multimodal model, hosted on TGI. You can enable it by using the followin config (if you have a PRO HF Api token):
-
-```env
-    {
-      "name": "HuggingFaceM4/idefics-80b-instruct",
-      "multimodal" : true,
-      "description": "IDEFICS is the new multimodal model by Hugging Face.",
-      "preprompt": "",
-      "chatPromptTemplate" : "{{#each messages}}{{#ifUser}}User: {{content}}{{/ifUser}}<end_of_utterance>\nAssistant: {{#ifAssistant}}{{content}}\n{{/ifAssistant}}{{/each}}",
-      "parameters": {
-        "temperature": 0.1,
-        "top_p": 0.95,
-        "repetition_penalty": 1.2,
-        "top_k": 12,
-        "truncate": 1000,
-        "max_new_tokens": 1024,
-        "stop": ["<end_of_utterance>", "User:", "\nUser:"]
-      }
-    }
-```
 
 #### Running your own models using a custom endpoint
 
