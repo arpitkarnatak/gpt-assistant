@@ -123,7 +123,7 @@ export async function POST({ request, fetch, locals, params, getClientAddress })
 	})() satisfies Message[];
 
 	const conversationTitle = (
-		conv.title.startsWith("Untitled") ? await summarize(newPrompt) : conv.title
+		conv.title?.startsWith("Untitled") ? await summarize(newPrompt) : conv.title
 	) as string;
 	// we now build the stream
 	const stream = new ReadableStream({
