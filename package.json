@@ -49,6 +49,7 @@
 		"@sveltejs/vite-plugin-svelte": "^3.0.2",
 		"autoprefixer": "^10.4.14",
 		"browser-image-resizer": "^2.4.1",
+		"cookie": "^0.6.0",
 		"date-fns": "^2.29.3",
 		"dotenv": "^16.0.3",
 		"ethers": "^5.5.4",
